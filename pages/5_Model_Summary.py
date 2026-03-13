@@ -9,13 +9,17 @@ from io import BytesIO
 from utils.templates import create_three_statement_template
 from utils.ai_analysis import get_client
 from utils.pdf_export import create_analysis_pdf
+from utils.styles import inject_custom_css, CHART_COLORS, PLOTLY_LAYOUT
 
 st.set_page_config(page_title="3-Statement Model Summary", page_icon="📋", layout="wide")
+inject_custom_css()
 st.title("3-Statement Model Summary")
-st.markdown(
-    "Upload a 3-statement financial model (Income Statement, Balance Sheet, Cash Flow) "
-    "and get an automated credit-focused summary with key metrics and trends."
-)
+st.markdown("""
+<p style="color: #64748B; font-size: 1.05rem; margin-top: -0.5em; margin-bottom: 1em;">
+    Upload a 3-statement financial model (Income Statement, Balance Sheet, Cash Flow)
+    and get an automated credit-focused summary with key metrics and trends.
+</p>
+""", unsafe_allow_html=True)
 
 # --- Template download ---
 template_buf = create_three_statement_template()
@@ -307,17 +311,17 @@ try:
         gross_lev = [metrics_by_period[p].get("gross_leverage") for p in periods]
         net_lev = [metrics_by_period[p].get("net_leverage") for p in periods]
         fig_lev = go.Figure()
-        fig_lev.add_trace(go.Scatter(x=periods, y=gross_lev, mode="lines+markers", name="Gross Leverage"))
-        fig_lev.add_trace(go.Scatter(x=periods, y=net_lev, mode="lines+markers", name="Net Leverage"))
-        fig_lev.update_layout(title="Leverage Trend", yaxis_title="x EBITDA", height=350, template="plotly_white")
+        fig_lev.add_trace(go.Scatter(x=periods, y=gross_lev, mode="lines+markers", name="Gross Leverage", line=dict(color=CHART_COLORS["primary"])))
+        fig_lev.add_trace(go.Scatter(x=periods, y=net_lev, mode="lines+markers", name="Net Leverage", line=dict(color=CHART_COLORS["accent"])))
+        fig_lev.update_layout(title="Leverage Trend", yaxis_title="x EBITDA", height=350, **PLOTLY_LAYOUT)
         st.plotly_chart(fig_lev, use_container_width=True)
 
     with chart_col2:
         coverage = [metrics_by_period[p].get("interest_coverage") for p in periods]
         fig_cov = go.Figure()
         fig_cov.add_trace(go.Scatter(x=periods, y=coverage, mode="lines+markers",
-                                      name="Interest Coverage", line=dict(color="green")))
-        fig_cov.update_layout(title="Interest Coverage Trend", yaxis_title="x", height=350, template="plotly_white")
+                                      name="Interest Coverage", line=dict(color=CHART_COLORS["positive"])))
+        fig_cov.update_layout(title="Interest Coverage Trend", yaxis_title="x", height=350, **PLOTLY_LAYOUT)
         st.plotly_chart(fig_cov, use_container_width=True)
 
     chart_col3, chart_col4 = st.columns(2)
@@ -326,31 +330,31 @@ try:
         rev = [metrics_by_period[p].get("revenue") for p in periods]
         ebitda_vals = [metrics_by_period[p].get("ebitda") for p in periods]
         fig_rev = go.Figure()
-        fig_rev.add_trace(go.Bar(x=periods, y=rev, name="Revenue", marker_color="steelblue"))
-        fig_rev.add_trace(go.Bar(x=periods, y=ebitda_vals, name="EBITDA", marker_color="lightsteelblue"))
+        fig_rev.add_trace(go.Bar(x=periods, y=rev, name="Revenue", marker_color=CHART_COLORS["primary"]))
+        fig_rev.add_trace(go.Bar(x=periods, y=ebitda_vals, name="EBITDA", marker_color=CHART_COLORS["accent"]))
         fig_rev.update_layout(title="Revenue & EBITDA", yaxis_title="$ Millions",
-                               height=350, template="plotly_white", barmode="group")
+                               height=350, barmode="group", **PLOTLY_LAYOUT)
         st.plotly_chart(fig_rev, use_container_width=True)
 
     with chart_col4:
         fcf_vals = [metrics_by_period[p].get("fcf") for p in periods]
         fcf_clean = [v if v is not None else 0 for v in fcf_vals]
-        colors = ["green" if v >= 0 else "red" for v in fcf_clean]
+        colors = [CHART_COLORS["positive"] if v >= 0 else CHART_COLORS["negative"] for v in fcf_clean]
         fig_fcf = go.Figure()
         fig_fcf.add_trace(go.Bar(x=periods, y=fcf_clean, name="FCF", marker_color=colors))
         fig_fcf.update_layout(title="Free Cash Flow Trend", yaxis_title="$ Millions",
-                               height=350, template="plotly_white")
+                               height=350, **PLOTLY_LAYOUT)
         st.plotly_chart(fig_fcf, use_container_width=True)
 
     # Margin trend
     fig_margins = go.Figure()
     fig_margins.add_trace(go.Scatter(
         x=periods, y=[metrics_by_period[p].get("ebitda_margin") for p in periods],
-        mode="lines+markers", name="EBITDA Margin (%)"))
+        mode="lines+markers", name="EBITDA Margin (%)", line=dict(color=CHART_COLORS["primary"])))
     fig_margins.add_trace(go.Scatter(
         x=periods, y=[metrics_by_period[p].get("net_margin") for p in periods],
-        mode="lines+markers", name="Net Margin (%)"))
-    fig_margins.update_layout(title="Margin Trends", yaxis_title="%", height=350, template="plotly_white")
+        mode="lines+markers", name="Net Margin (%)", line=dict(color=CHART_COLORS["highlight"])))
+    fig_margins.update_layout(title="Margin Trends", yaxis_title="%", height=350, **PLOTLY_LAYOUT)
     st.plotly_chart(fig_margins, use_container_width=True)
 
     # =========================================================================

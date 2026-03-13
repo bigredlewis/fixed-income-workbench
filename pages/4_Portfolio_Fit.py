@@ -8,13 +8,17 @@ import numpy as np
 import plotly.graph_objects as go
 from utils.calculations import RATING_SCALE, RATING_SCALE_REVERSE, numeric_to_rating
 from utils.templates import create_portfolio_holdings_template
+from utils.styles import inject_custom_css, CHART_COLORS, PLOTLY_LAYOUT
 
 st.set_page_config(page_title="Portfolio Fit", page_icon="💼", layout="wide")
+inject_custom_css()
 st.title("Portfolio Fit Analysis")
-st.markdown(
-    "Upload your portfolio holdings to get an overview, then evaluate how a candidate bond "
-    "would impact duration, yield, credit quality, and sector concentration."
-)
+st.markdown("""
+<p style="color: #64748B; font-size: 1.05rem; margin-top: -0.5em; margin-bottom: 1em;">
+    Upload your portfolio holdings to get an overview, then evaluate how a candidate bond
+    would impact duration, yield, credit quality, and sector concentration.
+</p>
+""", unsafe_allow_html=True)
 
 # --- Initialize session state ---
 if "portfolio_holdings" not in st.session_state:
@@ -190,12 +194,12 @@ if holdings is not None and stats is not None:
             fig_rating = go.Figure(go.Bar(
                 x=sorted_ratings,
                 y=[rating_counts[r] for r in sorted_ratings],
-                marker_color="steelblue",
+                marker_color=CHART_COLORS["secondary"],
             ))
             fig_rating.update_layout(title="Rating Distribution",
                                       xaxis_title="Credit Rating",
                                       yaxis_title="Number of Holdings",
-                                      height=400, template="plotly_white")
+                                      height=400, **PLOTLY_LAYOUT)
             st.plotly_chart(fig_rating, use_container_width=True)
 
     # Holdings table
@@ -273,15 +277,15 @@ if holdings is not None and stats is not None:
             before = [dur_before, yld_before, sprd_before / 10]
             after = [dur_after, yld_after, sprd_after / 10]
             fig = go.Figure()
-            fig.add_trace(go.Bar(name="Before", x=categories, y=before, marker_color="lightsteelblue"))
-            fig.add_trace(go.Bar(name="After", x=categories, y=after, marker_color="steelblue"))
+            fig.add_trace(go.Bar(name="Before", x=categories, y=before, marker_color=CHART_COLORS["light"]))
+            fig.add_trace(go.Bar(name="After", x=categories, y=after, marker_color=CHART_COLORS["primary"]))
             fig.update_layout(barmode="group", title="Portfolio Metrics: Before vs After",
-                              height=400, template="plotly_white")
+                              height=400, **PLOTLY_LAYOUT)
             st.plotly_chart(fig, use_container_width=True)
 
         with chart_c2:
             filtered = {k: v for k, v in new_sector_w.items() if v > 0}
-            colors = ["steelblue" if k == bond_sector else "lightsteelblue" for k in filtered]
+            colors = [CHART_COLORS["primary"] if k == bond_sector else CHART_COLORS["light"] for k in filtered]
             fig_s = go.Figure(go.Pie(
                 labels=list(filtered.keys()), values=list(filtered.values()),
                 marker=dict(colors=colors), textinfo="label+percent", hole=0.3))

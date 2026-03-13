@@ -8,13 +8,17 @@ import plotly.graph_objects as go
 from utils.ai_analysis import generate_variance_commentary
 from utils.templates import create_consensus_template
 from utils.pdf_export import create_analysis_pdf
+from utils.styles import inject_custom_css, CHART_COLORS, PLOTLY_LAYOUT
 
 st.set_page_config(page_title="Consensus Comparison", page_icon="🔄", layout="wide")
+inject_custom_css()
 st.title("Consensus Comparison")
-st.markdown(
-    "Upload an Excel file with your estimates and consensus estimates, "
-    "or enter them manually. The tool flags variances and helps you understand the implications."
-)
+st.markdown("""
+<p style="color: #64748B; font-size: 1.05rem; margin-top: -0.5em; margin-bottom: 1em;">
+    Upload an Excel file with your estimates and consensus estimates,
+    or enter them manually. The tool flags variances and helps you understand the implications.
+</p>
+""", unsafe_allow_html=True)
 
 # --- Initialize session state ---
 if "consensus_data" not in st.session_state:
@@ -236,27 +240,27 @@ if comparison_rows:
         filtered = [r for r in comparison_rows if r["Metric"] in selected_metrics]
         fig = go.Figure()
         fig.add_trace(go.Bar(name="Your Estimate", x=[r["Metric"] for r in filtered],
-                              y=[r["Your Estimate"] for r in filtered], marker_color="steelblue"))
+                              y=[r["Your Estimate"] for r in filtered], marker_color=CHART_COLORS["primary"]))
         fig.add_trace(go.Bar(name="Consensus", x=[r["Metric"] for r in filtered],
-                              y=[r["Consensus"] for r in filtered], marker_color="lightcoral"))
+                              y=[r["Consensus"] for r in filtered], marker_color=CHART_COLORS["highlight"]))
         fig.update_layout(barmode="group", title="Your Estimates vs. Consensus",
-                          height=450, template="plotly_white")
+                          height=450, **PLOTLY_LAYOUT)
         st.plotly_chart(fig, use_container_width=True)
 
     # Variance bar chart
-    var_colors = ["green" if abs(r["Variance (%)"]) <= 2
-                  else "orange" if abs(r["Variance (%)"]) <= 5
-                  else "red" for r in comparison_rows]
+    var_colors = [CHART_COLORS["positive"] if abs(r["Variance (%)"]) <= 2
+                  else CHART_COLORS["warning"] if abs(r["Variance (%)"]) <= 5
+                  else CHART_COLORS["negative"] for r in comparison_rows]
     var_fig = go.Figure()
     var_fig.add_trace(go.Bar(x=[r["Metric"] for r in comparison_rows],
                               y=[r["Variance (%)"] for r in comparison_rows],
                               marker_color=var_colors, name="Variance %"))
     var_fig.update_layout(title="Variance from Consensus (%)", yaxis_title="Variance %",
-                          height=400, template="plotly_white")
-    var_fig.add_hline(y=5, line_dash="dash", line_color="orange", annotation_text="5% threshold")
-    var_fig.add_hline(y=-5, line_dash="dash", line_color="orange")
-    var_fig.add_hline(y=10, line_dash="dash", line_color="red", annotation_text="10% threshold")
-    var_fig.add_hline(y=-10, line_dash="dash", line_color="red")
+                          height=400, **PLOTLY_LAYOUT)
+    var_fig.add_hline(y=5, line_dash="dash", line_color=CHART_COLORS["warning"], annotation_text="5% threshold")
+    var_fig.add_hline(y=-5, line_dash="dash", line_color=CHART_COLORS["warning"])
+    var_fig.add_hline(y=10, line_dash="dash", line_color=CHART_COLORS["negative"], annotation_text="10% threshold")
+    var_fig.add_hline(y=-10, line_dash="dash", line_color=CHART_COLORS["negative"])
     st.plotly_chart(var_fig, use_container_width=True)
 
     # --- AI Commentary ---

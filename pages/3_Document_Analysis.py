@@ -7,14 +7,18 @@ import streamlit as st
 import pdfplumber
 from utils.ai_analysis import analyze_document
 from utils.pdf_export import create_analysis_pdf, create_multi_analysis_pdf
+from utils.styles import inject_custom_css
 
 st.set_page_config(page_title="Document Analysis", page_icon="📄", layout="wide")
+inject_custom_css()
 st.title("Document Analysis")
-st.markdown(
-    "Upload sell-side reports, earnings transcripts, or other research documents. "
-    "Extract key insights and translate qualitative views into model assumptions. "
-    "**Results are saved in your session** so you can navigate away and come back."
-)
+st.markdown("""
+<p style="color: #64748B; font-size: 1.05rem; margin-top: -0.5em; margin-bottom: 1em;">
+    Upload sell-side reports, earnings transcripts, or other research documents.
+    Extract key insights and translate qualitative views into model assumptions.
+    <strong>Results are saved in your session</strong> so you can navigate away and come back.
+</p>
+""", unsafe_allow_html=True)
 
 # --- Initialize session state for persistent results ---
 if "doc_analysis_results" not in st.session_state:

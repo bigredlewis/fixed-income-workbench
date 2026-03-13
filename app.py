@@ -5,6 +5,7 @@ compare estimates to consensus, analyze sell-side reports, and evaluate portfoli
 """
 
 import streamlit as st
+from utils.styles import inject_custom_css, feature_card
 
 st.set_page_config(
     page_title="Fixed Income Analyst Workbench",
@@ -13,8 +14,18 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# --- Inject global theme ---
+inject_custom_css()
+
 # --- Sidebar branding ---
-st.sidebar.title("FI Analyst Workbench")
+st.sidebar.markdown("""
+<div style="text-align: center; padding: 10px 0 6px 0;">
+    <div style="font-size: 1.6rem; margin-bottom: 2px;">📊</div>
+    <div style="font-size: 1.1rem; font-weight: 700; color: #E8EEF4; letter-spacing: 0.02em;">
+        FI Analyst Workbench
+    </div>
+</div>
+""", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     "Navigate using the pages above. Each tool is designed to streamline "
@@ -41,98 +52,174 @@ with st.sidebar.expander("AI Settings", expanded=False):
     else:
         st.info("No API key — AI features will use manual mode")
 
-# --- Home page content ---
-st.title("Fixed Income Analyst Workbench")
-st.markdown(
-    """
-    Welcome! This workbench helps fundamental fixed income analysts work more
-    efficiently. Use the sidebar to navigate between tools.
-    """
-)
+# --- Home page hero ---
+st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #1B3A5C 0%, #2E6B9E 50%, #4CA1D9 100%);
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin-bottom: 28px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+">
+    <div style="
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    "></div>
+    <div style="
+        position: absolute;
+        bottom: -40px;
+        right: 60px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 50%;
+    "></div>
+    <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+    <h1 style="color: white !important; margin: 0 0 8px 0 !important; font-size: 2rem !important;">
+        Fixed Income Analyst Workbench
+    </h1>
+    <p style="color: rgba(255,255,255,0.85); font-size: 1.1rem; margin: 0; line-height: 1.5; max-width: 600px;">
+        Streamline your credit analysis workflow — from model building to portfolio fit.
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# --- API Key callout ---
+if not st.session_state.anthropic_api_key:
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #F0F7FF, #E8F0FE);
+        border: 1px solid #B8D4F0;
+        border-left: 4px solid #2E6B9E;
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+    ">
+        <div style="font-weight: 600; color: #1B3A5C; font-size: 1rem; margin-bottom: 6px;">
+            Unlock AI-Powered Analysis
+        </div>
+        <div style="color: #4A6A8A; font-size: 0.92rem; line-height: 1.5;">
+            For full AI functionality — including document analysis, credit commentary, and
+            variance insights — enter your Anthropic API key below.
+            Get one at <a href="https://console.anthropic.com" target="_blank" style="color: #2E6B9E; font-weight: 500;">console.anthropic.com</a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    api_key_home = st.text_input(
+        "Anthropic API Key",
+        value="",
+        type="password",
+        placeholder="sk-ant-...",
+        help="Your key is stored only in your browser session and never saved to disk.",
+        key="api_key_home",
+    )
+    if api_key_home:
+        st.session_state.anthropic_api_key = api_key_home
+        st.rerun()
+else:
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #F0FAF4, #E6F5EC);
+        border: 1px solid #A8D8B9;
+        border-left: 4px solid #2D8B57;
+        border-radius: 10px;
+        padding: 16px 24px;
+        margin-bottom: 24px;
+    ">
+        <div style="color: #1D6B3F; font-size: 0.92rem;">
+            <strong>AI features are active.</strong> Claude-powered analysis is available across all tools.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# Feature cards
+# --- Feature cards ---
+st.markdown("""
+<div style="
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+">
+    <div style="
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1B3A5C;
+        letter-spacing: 0.02em;
+    ">Tools & Features</div>
+    <div style="
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, #D6E4F0, transparent);
+    "></div>
+</div>
+""", unsafe_allow_html=True)
+
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Credit Analysis")
-    st.markdown(
-        """
-        Build and track credit models with key metrics:
-        - Leverage ratios (Debt/EBITDA)
-        - Interest coverage
-        - Free cash flow analysis
-        - Margin trends across quarters
-        """
+    feature_card(
+        "📈", "Credit Analysis",
+        "Build and track credit models with leverage ratios, interest coverage, "
+        "free cash flow analysis, and margin trends across quarters.",
+        "pages/1_Credit_Analysis.py", "Open Credit Analysis",
     )
-    st.page_link("pages/1_Credit_Analysis.py", label="Open Credit Analysis", icon="📈")
 
-    st.markdown("---")
-
-    st.subheader("Document Analysis")
-    st.markdown(
-        """
-        Upload sell-side reports and earnings transcripts:
-        - Extract key financial data points
-        - Summarize qualitative insights
-        - Translate qualitative views into model assumptions
-        """
+    feature_card(
+        "📄", "Document Analysis",
+        "Upload sell-side reports and earnings transcripts to extract key data points, "
+        "summarize insights, and translate views into model assumptions.",
+        "pages/3_Document_Analysis.py", "Open Document Analysis",
     )
-    st.page_link("pages/3_Document_Analysis.py", label="Open Document Analysis", icon="📄")
+
+    feature_card(
+        "📋", "3-Statement Model Summary",
+        "Upload a 3-statement financial model and get a credit-focused summary with "
+        "auto-calculated metrics, trend charts, and AI commentary.",
+        "pages/5_Model_Summary.py", "Open Model Summary",
+    )
 
 with col2:
-    st.subheader("Consensus Comparison")
-    st.markdown(
-        """
-        Compare your estimates against Street consensus:
-        - Side-by-side metric comparison
-        - Variance analysis with visual flags
-        - Track where you differ and why
-        """
+    feature_card(
+        "🔄", "Consensus Comparison",
+        "Compare your estimates against Street consensus with side-by-side comparison, "
+        "variance analysis with visual flags, and AI-powered commentary.",
+        "pages/2_Consensus_Comparison.py", "Open Consensus Comparison",
     )
-    st.page_link("pages/2_Consensus_Comparison.py", label="Open Consensus Comparison", icon="🔄")
 
-    st.markdown("---")
-
-    st.subheader("Portfolio Fit Analysis")
-    st.markdown(
-        """
-        Evaluate how a bond fits your portfolio:
-        - Duration and yield impact
-        - Credit quality and sector concentration
-        - Risk contribution analysis
-        """
+    feature_card(
+        "💼", "Portfolio Fit Analysis",
+        "Evaluate how a bond fits your portfolio with duration and yield impact, "
+        "credit quality assessment, and sector concentration analysis.",
+        "pages/4_Portfolio_Fit.py", "Open Portfolio Fit",
     )
-    st.page_link("pages/4_Portfolio_Fit.py", label="Open Portfolio Fit", icon="💼")
+
+    feature_card(
+        "📖", "Key Terms & Concepts",
+        "Quick reference guide with 90+ fixed income terms covering bond basics, "
+        "yield, spreads, credit ratios, and market terminology.",
+        "pages/6_Key_Terms.py", "Open Key Terms",
+    )
 
 st.markdown("---")
-
-# Third row - centered
-col3, col4 = st.columns(2)
-with col3:
-    st.subheader("3-Statement Model Summary")
-    st.markdown(
-        """
-        Upload a 3-statement financial model and get a credit-focused summary:
-        - Auto-calculates leverage, coverage, and FCF metrics
-        - Trend charts across historical periods
-        - AI-powered credit commentary and rating estimate
-        """
-    )
-    st.page_link("pages/5_Model_Summary.py", label="Open Model Summary", icon="📋")
-
-with col4:
-    st.subheader("Key Terms & Concepts")
-    st.markdown(
-        """
-        Quick reference guide for fixed income analysts:
-        - Bond basics, yield, spread, and duration concepts
-        - Credit ratios and rating agency frameworks
-        - Bond structures, covenants, and market terminology
-        """
-    )
-    st.page_link("pages/6_Key_Terms.py", label="Open Key Terms", icon="📖")
-
-st.markdown("---")
-st.caption("Built with Streamlit | AI powered by Claude")
+st.markdown("""
+<div style="
+    text-align: center;
+    padding: 16px 0 8px 0;
+    color: #94A3B8;
+    font-size: 0.85rem;
+">
+    <span style="letter-spacing: 0.03em;">
+        Built with Streamlit &nbsp;&bull;&nbsp; AI powered by Claude &nbsp;&bull;&nbsp; Fixed Income Analyst Workbench
+    </span>
+</div>
+""", unsafe_allow_html=True)
