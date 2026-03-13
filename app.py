@@ -82,7 +82,7 @@ st.markdown("""
         border-radius: 50%;
     "></div>
     <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
-    <h1 style="color: white !important; margin: 0 0 8px 0 !important; font-size: 2rem !important;">
+    <h1 style="color: #000000 !important; margin: 0 0 8px 0 !important; font-size: 2rem !important;">
         Fixed Income Analyst Workbench
     </h1>
     <p style="color: rgba(255,255,255,0.85); font-size: 1.1rem; margin: 0; line-height: 1.5; max-width: 600px;">
