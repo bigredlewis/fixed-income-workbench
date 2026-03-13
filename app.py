@@ -55,11 +55,11 @@ with st.sidebar.expander("AI Settings", expanded=False):
 # --- Home page hero ---
 st.markdown("""
 <div style="
-    background: linear-gradient(135deg, #1B3A5C 0%, #2E6B9E 50%, #4CA1D9 100%);
+    background: linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 50%, #DCEAFB 100%);
+    border: 1px solid #B8D4F0;
     border-radius: 16px;
     padding: 40px 44px;
     margin-bottom: 28px;
-    color: white;
     position: relative;
     overflow: hidden;
 ">
@@ -69,7 +69,7 @@ st.markdown("""
         right: -20px;
         width: 200px;
         height: 200px;
-        background: rgba(255,255,255,0.05);
+        background: rgba(27, 58, 92, 0.03);
         border-radius: 50%;
     "></div>
     <div style="
@@ -78,14 +78,14 @@ st.markdown("""
         right: 60px;
         width: 120px;
         height: 120px;
-        background: rgba(255,255,255,0.03);
+        background: rgba(27, 58, 92, 0.02);
         border-radius: 50%;
     "></div>
     <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
     <h1 style="color: #000000 !important; margin: 0 0 8px 0 !important; font-size: 2rem !important;">
         Fixed Income Analyst Workbench
     </h1>
-    <p style="color: rgba(255,255,255,0.85); font-size: 1.1rem; margin: 0; line-height: 1.5; max-width: 600px;">
+    <p style="color: #4A6A8A; font-size: 1.1rem; margin: 0; line-height: 1.5; max-width: 600px;">
         Streamline your credit analysis workflow — from model building to portfolio fit.
     </p>
 </div>
